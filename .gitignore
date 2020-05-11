@@ -5,3 +5,5 @@
 /target/scala-2.13/classes/
 .idea/
 .DS_Store
+/docker_test_client
+/security
