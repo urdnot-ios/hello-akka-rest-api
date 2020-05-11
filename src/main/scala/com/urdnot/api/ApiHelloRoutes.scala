@@ -1,47 +1,41 @@
 package com.urdnot.api
 
-import com.urdnot.api.ApiHelloActor.{Bid, Bids, GetBids, HelloRequest}
+import com.urdnot.api.ApiHelloActor.HelloRequest
 import akka.actor.ActorRef
-import akka.http.scaladsl.server.Directives.{complete, concat, get, parameter, path, put}
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives.{complete, concat, get, parameter, path}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
-
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import akka.pattern.ask
 
 object ApiHelloRoutes extends ApiHelloDataObjects {
   def setupRoutes(auction: ActorRef): Route = {
-    path("auction") {
-      concat(
-        put {
-          parameter("bid".as[Int], "user") { (bid, user) =>
-            // place a bid, fire-and-forget
-            auction ! Bid(user, bid)
-            complete((StatusCodes.Accepted, "bid placed"))
-          }
-        },
+    // curl 'http://localhost:8080/hello?user=jsewell&message=hello'
+    concat(
+      path("hello") {
         get {
           implicit val timeout: Timeout = 5.seconds
-
-          // query the actor for the current auction state
-          val bids: Future[Bids] = (auction ? GetBids).mapTo[Bids]
-          complete(bids)
-        }
-      )
-    }
-    path("hello") {
-      concat(
-        get {
-          implicit val timeout: Timeout = 5.seconds
-          parameter("user") { userName =>
-            val helloReplyMessage: Future[HelloRequest] = ((auction ? HelloRequest(userName)).mapTo[HelloRequest])
+          parameter("user", "message") { (userName, message) =>
+            val helloReplyMessage: Future[HelloRequest] = (auction ? HelloRequest(userName, message)).mapTo[HelloRequest]
             complete(helloReplyMessage)
           }
         }
-      )
-    }
+      },
+      // curl -d '{"userName":"jsewell","message":"hello"}' -H "Content-Type: application/json" -X POST http://localhost:8080/helloJson
+      path("helloJson") {
+        concat(
+          post {
+            implicit val timeout: Timeout = 5.seconds
+            entity(as[HelloRequest]) { jsonRequest: HelloRequest =>
+              val helloReplyMessage: Future[HelloRequest] = (auction ? HelloRequest(jsonRequest.userName, jsonRequest.message)).mapTo[HelloRequest]
+              complete(helloReplyMessage)
+            }
+          }
+        )
+      }
+    )
   }
 }
+

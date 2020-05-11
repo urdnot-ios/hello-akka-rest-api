@@ -12,20 +12,8 @@ object ApiListener {
 }
 //
 //class ApiListener extends Actor with ActorLogging {
-//  log.info("starting api")
-//  var bids = List.empty[Bid]
-//  implicit val bidFormat = jsonFormat2(Bid)
-//  implicit val bidsFormat = jsonFormat1(Bids)
-//  def receive = {
-//    case bid @ Bid(userId, offer) =>
-//      bids = bids :+ bid
-//      log.info(s"Bid complete: $userId, $offer")
-//    case GetBids => sender() ! Bids(bids)
-//    case _       => log.info("Invalid message")
-//  }
-//
-////
-////
+// Keeping for reference for later when I need to do TLS
+
 ////  def tlsSetup(): HttpsConnectionContext = {
 ////
 ////    /*
@@ -40,7 +28,6 @@ object ApiListener {
 ////    val ksPassword: Array[Char] = context.system.settings.config.getString("security.jks-pw").toCharArray
 //////    val ksPassword: Array[Char] = new String(Files.readAllBytes(Paths.get(context.system.settings.config.getString("security.jks-pw")))).toCharArray
 ////
-//////    val ksPassword: Array[Char] = "vVsgCgyjjPzwmuWhppFUVE4z".toCharArray
 ////    // Now the actual key file
 ////    // This is Java at it's most messed up. You have to set the path as a system property
 ////    // BUT you can't pull that path from an env variable. The best option is to set a string
