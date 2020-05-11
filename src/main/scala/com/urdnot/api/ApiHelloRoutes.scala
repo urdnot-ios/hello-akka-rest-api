@@ -11,6 +11,13 @@ import scala.concurrent.Future
 import akka.pattern.ask
 
 object ApiHelloRoutes extends ApiHelloDataObjects {
+  // There might be a better way to do this, but I like putting all the routes
+  // together in the same object. Provide examples of how to call them
+  // you can do an additonal concat below a path if you want different parameters to
+  // do different things but under the same path
+  // In Intellij, using Akka 2.6 and Scala 2.13 I get an error in the parameter() map, however it
+  // compiles and runs fine.
+
   def setupRoutes(auction: ActorRef): Route = {
     // curl 'http://localhost:8080/hello?user=jsewell&message=hello'
     concat(
