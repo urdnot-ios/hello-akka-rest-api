@@ -4,12 +4,13 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 
+import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn
 
 object ApiHelloApp extends App {
-  implicit val system = ActorSystem()
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = system.dispatcher
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   val helloApi: ActorRef = system.actorOf(Props[ApiHelloActor], "helloApi")
 

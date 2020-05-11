@@ -6,12 +6,12 @@ import com.urdnot.api.ApiHelloActor.HelloRequest
 object ApiHelloActor {
   case class HelloRequest(userName: String, message: String)
 
-  def props() = Props
+  def props(): Props.type = Props
 }
 class ApiHelloActor extends Actor with ActorLogging with ApiHelloDataObjects {
 
-  def receive = {
-    case HelloRequest(userName, message) => sender() ! HelloRequest(s"${userName}", "Hello there!")
+  def receive: Receive = {
+    case HelloRequest(userName, _) => sender() ! HelloRequest(s"$userName", "Hello there!")
     case _       => log.info("Invalid message")
   }
 }
