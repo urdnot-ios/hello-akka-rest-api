@@ -7,3 +7,4 @@
 .DS_Store
 /docker_test_client
 /security
+keystore.jks
