@@ -1,15 +1,63 @@
 package com.urdnot.api
 
-import akka.actor.Props
+import java.io.InputStream
+import java.security.{ KeyStore, SecureRandom }
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
+import akka.http.scaladsl.{ ConnectionContext, HttpsConnectionContext }
 
 
-object ApiListener {
-//  case class Bid(userId: String, offer: Int)
-//  case object GetBids
-//  case class Bids(bids: List[Bid])
+trait SSLFactory {
+  implicit def sslContext: SSLContext = {
 
-  def props(): Props = Props()
+    val password: Array[Char] = "change me".toCharArray // do not store passwords in code, read them from somewhere safe!
+
+    val ks: KeyStore = KeyStore.getInstance("PKCS12")
+    val keystore: InputStream = getClass.getClassLoader.getResourceAsStream("server.p12")
+
+    require(keystore != null, "Keystore required!")
+    ks.load(keystore, password)
+
+    val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+    keyManagerFactory.init(ks, password)
+
+    val tmf: TrustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+    tmf.init(ks)
+
+    val sslContext: SSLContext = SSLContext.getInstance("TLS")
+    sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom)
+    val https: HttpsConnectionContext = ConnectionContext.https(sslContext)
+  }
 }
+
+//
+//
+//    val keystore = "keystore.jks"
+//    val ksPassword: Array[Char] = context.system.settings.config.getString("security.jks-pw").toCharArray
+//
+//    val ks: KeyStore = KeyStore.getInstance("JKS")
+//    val in = getClass.getClassLoader.getResourceAsStream(keystore)
+//    require(in != null, "Bad java key storage file: " + keystore)
+//    keyStore.load(in, password.toCharArray)
+//
+//    val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+//    keyManagerFactory.init(keyStore, password.toCharArray)
+//
+//    val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+//    trustManagerFactory.init(keyStore)
+
+//    val context = SSLContext.getInstance("TLS")
+//    context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
+//    context
+//  }
+
+//  implicit def sslEngineProvider: ServerSSLEngineProvider = {
+//    ServerSSLEngineProvider { engine =>
+//      engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
+//      engine.setEnabledProtocols(Array("SSLv3", "TLSv1"))
+//      engine
+//    }
+//  }
+//}
 //
 //class ApiListener extends Actor with ActorLogging {
 // Keeping for reference for later when I need to do TLS
