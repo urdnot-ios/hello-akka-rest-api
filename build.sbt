@@ -1,40 +1,48 @@
 import com.typesafe.sbt.packager.docker._
+import sbt.Keys.mappings
 
-name := "simple-akka-rest-api"
+name := "basicrestapi"
 
-version := "0.2.3"
+version := "0.4.3"
 
 organization := "com.urdnot.api"
 
 val scalaMajorVersion = "2.13"
-val scalaMinorVersion = "1"
+val scalaMinorVersion = "5"
 
 scalaVersion := scalaMajorVersion.concat("." + scalaMinorVersion)
 
-mainClass in assembly := Some("com.urdnot.api.SimpleAkkaRestApi")
+packageName in Docker := packageName.value
 
 libraryDependencies ++= {
-  val akkaVersion = "2.6.3"
-  val akkaHttpVersion = "10.1.11"
-  val akkaSprayJsonVersion = "10.1.11"
+  val akkaVersion = "2.6.13"
+  val akkaHttpVersion = "10.2.4"
+  val scalaLoggingVersion = "3.9.2"
+  val logbackVersion = "1.2.3"
+  val scalaTestVersion = "3.2.5"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json" % akkaSprayJsonVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-    "ch.qos.logback" % "logback-classic" % "1.1.3",
+    "ch.qos.logback" % "logback-classic" % logbackVersion,
+    "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
-    "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+    "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
   )
 }
 
 enablePlugins(DockerPlugin)
 
-//Name the fat jar:
 assemblyJarName := s"${name.value}.v${version.value}.jar"
-
 val meta = """META.INF(.)*""".r
+
+mappings in(Compile, packageBin) ~= {
+  _.filterNot {
+    case (_, name) => Seq("application.conf").contains(name)
+  }
+}
+
 assemblyMergeStrategy in assembly := {
   case n if n.endsWith(".properties") => MergeStrategy.concat
   case PathList("reference.conf") => MergeStrategy.concat
@@ -42,32 +50,25 @@ assemblyMergeStrategy in assembly := {
   case meta(_) => MergeStrategy.discard
   case x => MergeStrategy.first
 }
-
-// Build the docker image and add the fat jar
 dockerBuildOptions += "--no-cache"
 dockerUpdateLatest := true
-dockerPackageMappings in Docker += file(s"target/scala-${scalaMajorVersion}/${assemblyJarName.value}") -> s"opt/docker/${assemblyJarName.value}"
+dockerPackageMappings in Docker += file(s"target/scala-2.13/${assemblyJarName.value}") -> s"opt/docker/${assemblyJarName.value}"
 mappings in Docker += file("src/main/resources/application.conf") -> "opt/docker/application.conf"
-mappings in Docker += file("security/keystore.jks") -> "opt/docker/keystore.jks"
-mappings in Docker += file("security/keystore_pass.txt") -> "opt/docker/keystore_pass.txt"
-dockerExposedPorts in Docker := Seq(9443)
+mappings in Docker += file("src/main/resources/logback.xml") -> "opt/docker/logback.xml"
+dockerExposedPorts := Seq(80, 443)
 maintainer in Docker := "Jeffrey Sewell"
-dockerEntrypoint in Docker := Seq("java", "com.urdnot.api.SimpleAkkaRestApiApp")
-dockerAlias := com.typesafe.sbt.packager.docker.DockerAlias(
-  registryHost = None,
-  username = None,
-  name = "intel-server-03:5000/basicrestapi/latest",
-  tag = Option("basicRestApi"))
 
 dockerCommands := Seq(
-  Cmd("FROM", "openjdk:8-alpine"),
-  Cmd("LABEL", s"""MAINTAINER="Jeffrey Sewell""""),
-  Cmd("ENV", "CLASSPATH=$CLASSPATH:/opt/lib/*.jar"),
-  Cmd("COPY", s"opt/docker/keystore.jks /etc/security/keystore.jks"),
-  Cmd("COPY", s"opt/docker/keystore_pass.txt /etc/security/keystore_pass.txt"),
-  Cmd("COPY", s"opt/docker/${assemblyJarName.value}", s"/opt/lib/${assemblyJarName.value}"),
-  Cmd("EXPOSE", "9443"),
-  Cmd("ENTRYPOINT", s"java -cp /opt/lib/${assemblyJarName.value} com.urdnot.api.SimpleAkkaRestApiApp")
+  Cmd("FROM", "openjdk:14-jdk-slim"),
+//  Cmd("LABEL", s"""MAINTAINER="Jeffrey Sewell""""),
+  Cmd("COPY", s"opt/docker/${assemblyJarName.value}", s"/opt/docker/${assemblyJarName.value}"),
+  Cmd("COPY", "opt/docker/application.conf", "/var/application.conf"),
+  Cmd("COPY", "opt/docker/logback.xml", "/var/logback.xml"),
+  Cmd("ENV", "CLASSPATH=/opt/docker/application.conf:/opt/docker/logback.xml"),
+  Cmd("ENV", "JKS_PW=''"),
+  Cmd("ENV", "HTTP_PORT=80"),
+  Cmd("ENTRYPOINT", s"java -cp /opt/docker/${assemblyJarName.value} ${mainClass.in(Compile).value.get}")
 )
-
-
+// sbt clean && sbt assembly && sbt docker:publishLocal
+// docker tag basicrestapi:latest intel-server-03:5000/basicrestapi:latest
+// docker push intel-server-03:5000/basicrestapi:latest

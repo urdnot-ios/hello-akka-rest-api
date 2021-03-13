@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: basicrestapi.yaml
+  name: basic-rest-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name:  basic-rest-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name:  basic-rest-api
+    spec:
+      containers:
+        - image: intel-server-03:5000/basicrestapi
+          name: basic-rest-api
+          imagePullPolicy: Always
+          env:
+            - name: PKCS12_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: basic-rest-api-secrets
+                  key: key-password
+            - name: PKCS12_FILE
+              value: "/etc/pkcs12/key-file.pkcs12"
+            - name: HTTPS_PORT
+              value: "443"
+          ports:
+            - containerPort: 443
+          volumeMounts:
+            - name: pkcs12
+              mountPath: "/etc/pkcs12"
+              readOnly: true
+      volumes:
+        - name: pkcs12
+          secret:
+            secretName: basic-rest-api-secrets
+            items:
+              - key: key-file
+                path: key-file.pkcs12

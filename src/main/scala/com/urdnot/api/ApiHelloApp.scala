@@ -2,11 +2,19 @@ package com.urdnot.api
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.Http
+import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.Logger
 
 import scala.concurrent.ExecutionContextExecutor
-import scala.io.StdIn
 
-object ApiHelloApp extends App {
+
+object ApiHelloApp extends App with SSLConfiguration {
+  private val config: Config = ConfigFactory.load()
+  private val interface: String = config.getString("akka.server.interface")
+  private val httpPort: Int = config.getInt("akka.server.http.port")
+  private val httpsPort: Int = config.getInt("akka.server.https.port")
+  private val log: Logger = Logger("homeApiService")
+
   // because of the bindingFuture, you need to include the executionContext
   implicit val system: ActorSystem = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -18,10 +26,29 @@ object ApiHelloApp extends App {
   val route = ApiHelloRoutes.setupRoutes(helloApi)
 
   // bind the interface
-  val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
-  println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-  StdIn.readLine() // let it run until user presses return
-  bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
-    .onComplete(_ => system.terminate()) // and shutdown when done
+  val bindingFutureHttps = Http()
+    .newServerAt(interface, httpPort)
+//    .enableHttps(https)
+    .bind(route)
+//  val bindingFutureHttp = Http()
+//    .newServerAt(interface, httpPort)
+//    .bind(route)
+
+  val bindingFutures = List(bindingFutureHttps)
+//  val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
+//  println(s"Server online at http://$interface:$httpPort")
+//  println(s"Server online at https://$interface:$httpsPort")
+  bindingFutures.map { bindingFuture =>
+    try {
+      bindingFuture.map { serverBinding =>
+        log.info(s"RestApi bound to ${serverBinding.localAddress.getAddress.getHostAddress}:${serverBinding.localAddress.getPort}")
+      }
+    }
+    catch
+    {
+      case ex: Exception ⇒
+        log.error(ex + s" Failed to bind!")
+        system.terminate()
+    }
+  }
 }
