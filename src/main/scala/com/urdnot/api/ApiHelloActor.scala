@@ -7,7 +7,7 @@ import com.urdnot.api.ApiHelloActor.{HelloMessage, HelloReplyMessage}
 // in from the listener
 
 object ApiHelloActor {
-  case class HelloMessage(userName: String, message: Option[String])
+  case class HelloMessage(userName: String, message: String)
   case class HelloReplyMessage(message: String)
   def props(): Props.type = Props
 }

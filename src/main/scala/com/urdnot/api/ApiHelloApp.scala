@@ -28,16 +28,11 @@ object ApiHelloApp extends App with SSLConfiguration {
   // bind the interface
   val bindingFutureHttps = Http()
     .newServerAt(interface, httpPort)
+//    .newServerAt(interface, httpsPort)
 //    .enableHttps(https)
     .bind(route)
-//  val bindingFutureHttp = Http()
-//    .newServerAt(interface, httpPort)
-//    .bind(route)
 
   val bindingFutures = List(bindingFutureHttps)
-//  val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
-//  println(s"Server online at http://$interface:$httpPort")
-//  println(s"Server online at https://$interface:$httpsPort")
   bindingFutures.map { bindingFuture =>
     try {
       bindingFuture.map { serverBinding =>

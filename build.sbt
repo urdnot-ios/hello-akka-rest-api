@@ -14,12 +14,14 @@ scalaVersion := scalaMajorVersion.concat("." + scalaMinorVersion)
 
 packageName in Docker := packageName.value
 
+
 libraryDependencies ++= {
   val akkaVersion = "2.6.13"
   val akkaHttpVersion = "10.2.4"
   val scalaLoggingVersion = "3.9.2"
   val logbackVersion = "1.2.3"
   val scalaTestVersion = "3.2.5"
+  val circeVersion = "0.12.3"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
@@ -28,7 +30,10 @@ libraryDependencies ++= {
     "ch.qos.logback" % "logback-classic" % logbackVersion,
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
-    "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
+    "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion
   )
 }
 
