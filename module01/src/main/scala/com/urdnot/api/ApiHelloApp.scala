@@ -8,7 +8,7 @@ import com.typesafe.scalalogging.Logger
 import scala.concurrent.ExecutionContextExecutor
 
 
-object ApiHelloApp extends App with SSLConfiguration {
+object ApiHelloApp extends App {
   private val config: Config = ConfigFactory.load()
   private val interface: String = config.getString("akka.server.interface")
   private val httpPort: Int = config.getInt("akka.server.http.port")
@@ -28,8 +28,6 @@ object ApiHelloApp extends App with SSLConfiguration {
   // bind the interface
   val bindingFutureHttps = Http()
     .newServerAt(interface, httpPort)
-//    .newServerAt(interface, httpsPort)
-//    .enableHttps(https)
     .bind(route)
 
   val bindingFutures = List(bindingFutureHttps)
