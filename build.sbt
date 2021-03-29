@@ -13,7 +13,7 @@ lazy val root = (project in file ("."))
   )
 lazy val module01 = (project in file("module01")).settings(sharedSettings)
 lazy val module02 = (project in file("module02")).settings(sharedSettings)
-lazy val module3 = (project in file("module03")).settings(sharedSettings)
+lazy val module03 = (project in file("module03")).settings(sharedSettings)
 
 
 
