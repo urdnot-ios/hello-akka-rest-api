@@ -11,8 +11,8 @@ Modules are
     - Intermediate JSON
     - Complex JSON
     - Error handling
-3. HTTP Connections with Akka HTTP
-    - Throttling
+3. HTTP Connections with Akka HTTP Server and Akka Streams client
+   - Throttling
    - Headers
    - SSL
    - Response handling

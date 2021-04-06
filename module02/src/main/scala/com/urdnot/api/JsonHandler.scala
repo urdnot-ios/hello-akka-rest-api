@@ -7,6 +7,7 @@ import com.typesafe.scalalogging.Logger
 import com.urdnot.api.ApiHelloApp.{executionContext, system}
 import com.urdnot.api.ApiHelloRoutes.log
 import com.urdnot.api.JsonHandler.{SimpleJsonReply, SimpleJsonRequest}
+import io.circe.{Decoder, HCursor, Json}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
@@ -31,6 +32,7 @@ class JsonHandler() extends Actor {
     def receive: Receive = {
       case x: SimpleJsonRequest =>
         sender() ! simpleRequest(x)
+      case j: Json => sender() ! jsonRequest(j)
       case _ => log.error("Unknown request, sending empty reply");
         sender() ! SimpleJsonReply("", 0, 0)
     }
@@ -41,5 +43,13 @@ class JsonHandler() extends Actor {
       intItem = entity.intItem,
       listItemSum = entity.listItem.sum
     )
+  }
+  def jsonRequest(json: Json): String = {
+    log.info("jsonRequest: " + json)
+    val cursor: HCursor = json.hcursor
+    cursor.downField("values").downField("baz").as[Double] match {
+      case Right(x) => x.toString
+      case Left(value) => log.error(value.message + " -- " + json); "None"
+    }
   }
 }

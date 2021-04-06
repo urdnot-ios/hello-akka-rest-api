@@ -13,6 +13,7 @@ import io.circe.generic.semiauto.deriveDecoder
 import io.circe.parser._
 import io.circe.{Decoder, Json}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 object ApiHelloRoutes extends ApiHelloDataObjects {
@@ -50,6 +51,23 @@ object ApiHelloRoutes extends ApiHelloDataObjects {
                     complete(StatusCodes.InternalServerError)
                 }
               }
+            }
+          }
+        )
+      },
+      //      curl -d '{"id": "c730433b-082c-4984-9d66-855c243266f0","name": "Foo", "counts": [1, 2, 3], "values": {"bar": true, "baz": 100.001, "qux": ["a", "b"]}' -H "Content-Type: application/json" -X POST http://localhost:8081/jsonExtractor
+      //      curl -d '{"id": "c730433b-082c-4984-9d66-855c243266f0","name": "Foo", "counts": [1, 2, 3], "values": {"bar": true, "baz": 100.001, "qux": ["a", "b"]}}' -H "Content-Type: application/json" -X POST http://localhost:8081/jsonExtractor
+      path("jsonExtractor") {
+        concat(
+          post {
+            implicit val timeout: Timeout = 5.seconds
+            entity(as[String]) { jsonRequest: String =>
+              val parsedVal = (jsonHandler ? parse(jsonRequest).getOrElse(Json.Null)).mapTo[String]
+               parsedVal match {
+                case x: Future[String] => complete(x)
+                case _ => log.error("unable to process reply")
+                  complete(StatusCodes.InternalServerError)
+                }
             }
           }
         )
