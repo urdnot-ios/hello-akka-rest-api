@@ -4,7 +4,6 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import com.urdnot.api.JsonApp.log
 import io.circe.{Json, ParsingFailure}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers

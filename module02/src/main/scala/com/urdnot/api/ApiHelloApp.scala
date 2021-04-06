@@ -19,10 +19,11 @@ object ApiHelloApp extends App {
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
   // setup the actor that does the listening and spawns the children
-  val helloApi: ActorRef = system.actorOf(Props[ApiHelloActor], "helloApi")
+
+  val jsonActor: ActorRef = system.actorOf(Props(new JsonHandler()))
 
   // setup the routes
-  val route = ApiHelloRoutes.setupRoutes(helloApi)
+  val route = ApiHelloRoutes.setupRoutes(jsonActor)
 
   // bind the interface
   val bindingFutureHttps = Http()
