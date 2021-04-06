@@ -20,7 +20,9 @@ object ApiHelloApp extends App {
 
   // setup the actor that does the listening and spawns the children
 
-  val jsonActor: ActorRef = system.actorOf(Props(new JsonHandler()))
+
+  private val jsonActor: ActorRef = system.actorOf(Props(new JsonHandler()))
+
 
   // setup the routes
   val route = ApiHelloRoutes.setupRoutes(jsonActor)

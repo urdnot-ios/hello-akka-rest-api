@@ -53,7 +53,7 @@ class JsonSuite extends TestKit(ActorSystem("JsonSuite"))
 
   "An invalid basic JSON parser" must {
     "send back a parsingfailure" in {
-      val basic = system.actorOf(JsonHandler.props)
+      val basic = system.actorOf(JsonHandler.props())
       (basic ? invalidJson).mapTo[Either[ParsingFailure, Json]]
         .onComplete {
           case Success(x) => x match {
@@ -67,7 +67,7 @@ class JsonSuite extends TestKit(ActorSystem("JsonSuite"))
   }
   "A valid basic JSON parser" must {
     "send back a valid JSON object" in {
-      val basic = system.actorOf(JsonHandler.props)
+      val basic = system.actorOf(JsonHandler.props())
       (basic ? validJson).mapTo[Either[ParsingFailure, Json]]
         .onComplete {
           case Success(x) => x match {
@@ -82,7 +82,7 @@ class JsonSuite extends TestKit(ActorSystem("JsonSuite"))
 
   "An invalid basic JSON parser" must {
     "send back a parsingfailure" in {
-      val basic = system.actorOf(JsonHandler.props)
+      val basic = system.actorOf(JsonHandler.props())
       (basic ? invalidJson).mapTo[Either[ParsingFailure, Json]]
         .onComplete {
           case Success(x) => x match {
