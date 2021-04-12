@@ -1,17 +1,12 @@
 package com.urdnot.api
 
-import akka.actor.{Actor, ActorRef, Props}
-import akka.pattern.ask
+import akka.actor.{Actor, Props}
 import akka.util.Timeout
 import com.typesafe.scalalogging.Logger
-import com.urdnot.api.ApiHelloApp.{executionContext, system}
-import com.urdnot.api.ApiHelloRoutes.log
-import com.urdnot.api.JsonHandler.{SimpleJsonReply, SimpleJsonRequest}
-import io.circe.{Decoder, HCursor, Json}
+import com.urdnot.api.JsonHandler.{SimpleJsonReply, SimpleJsonRequest, helloMessage}
+import io.circe.{HCursor, Json}
 
-import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import scala.util.{Failure, Success}
 
 object JsonHandler {
   case class SimpleJsonRequest(
@@ -22,7 +17,7 @@ object JsonHandler {
                               stringItem: String,
                               intItem: Int,
                               listItemSum: Int)
-  case class routeMessage(route: String, entity: String)
+  case class helloMessage(userName: String, message: String)
   def props(): Props = Props(new JsonHandler())
 }
 
@@ -32,6 +27,7 @@ class JsonHandler() extends Actor {
     def receive: Receive = {
       case x: SimpleJsonRequest =>
         sender() ! simpleRequest(x)
+      case x: helloMessage => sender() ! s"""{"hello" : "${x.userName}"}"""
       case j: Json => sender() ! jsonRequest(j)
       case _ => log.error("Unknown request, sending empty reply");
         sender() ! SimpleJsonReply("", 0, 0)

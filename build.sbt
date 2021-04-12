@@ -34,6 +34,8 @@ lazy val sharedSettings = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
     "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion
