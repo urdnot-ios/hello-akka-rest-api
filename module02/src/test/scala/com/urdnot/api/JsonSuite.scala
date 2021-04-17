@@ -13,22 +13,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success}
 
+// TEST WHAT HAPPENS WITH TWO RECORDS IN ONE MESSAGE
 class JsonSuite extends TestKit(ActorSystem("JsonSuite"))
   with ImplicitSender
   with AnyWordSpecLike
   with Matchers
-  with BeforeAndAfterAll {
-  val validJson: Array[Byte] =
-    """
-{
-  "foo": "bar",
-  "baz": 123,
-  "list of stuff": [ 4, 5, 6 ]
-}
-""".getBytes
+  with BeforeAndAfterAll
+  with DataSuite {
 
-  val invalidJson: Array[Byte] =
-    """NOPE""".getBytes
 
   implicit val timeout: Timeout = 5.seconds
 
@@ -38,7 +30,7 @@ class JsonSuite extends TestKit(ActorSystem("JsonSuite"))
 
   "A valid basic JSON parser" must {
     "send back a valid JSON object" in {
-      val basic = system.actorOf(JsonHandler.props)
+      val basic = system.actorOf(JsonHandler.props())
       (basic ? validJson).mapTo[Either[ParsingFailure, Json]]
       .onComplete {
         case Success(x) => x match {
@@ -65,33 +57,5 @@ class JsonSuite extends TestKit(ActorSystem("JsonSuite"))
       expectMsg(ParsingFailure)
     }
   }
-  "A valid basic JSON parser" must {
-    "send back a valid JSON object" in {
-      val basic = system.actorOf(JsonHandler.props())
-      (basic ? validJson).mapTo[Either[ParsingFailure, Json]]
-        .onComplete {
-          case Success(x) => x match {
-            case Left(j) => j
-            case Right(e) => e
-          }
-          case Failure(e) => e
-        }
-      expectMsg(Json)
-    }
-  }
-
-  "An invalid basic JSON parser" must {
-    "send back a parsingfailure" in {
-      val basic = system.actorOf(JsonHandler.props())
-      (basic ? invalidJson).mapTo[Either[ParsingFailure, Json]]
-        .onComplete {
-          case Success(x) => x match {
-            case Left(j) => j
-            case Right(e) => e
-          }
-          case Failure(e) => e
-        }
-      expectMsg(ParsingFailure)
-    }
-  }
+  
 }

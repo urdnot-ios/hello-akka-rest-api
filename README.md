@@ -24,22 +24,22 @@ Modules are
    - Source from JDBC
    - Source from NoSQL
 5. Sourcing from a stream source
-    - Kafka
+   - Kafka
    - Kinesis
    - Firebase
    - WebSocket Source
 6. Sinking to a non-stream sink
-    - Sink to file
+   - Sink to file
    - Sink to S3
    - Sink to JDBC
    - Sink to NoSQL
 7. Sinking to a streaming sink
-    - Write to Kafka
+   - Write to Kafka
    - Write to Kinesis
    - Write to Firebase
    - Write to WebSockets
 8. Mid-Stream Enrichment with flows and external lookups
-    - Log flow
+   - Log flow
    - NoSQL flow
    - DB Flow
 9. Query data as it streams

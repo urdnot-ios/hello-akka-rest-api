@@ -29,7 +29,7 @@ object ApiHelloRoutes extends ApiHelloDataObjects {
           implicit val timeout: Timeout = 5.seconds
           parameter("user", "message") { (userName: String, message: String) =>
             log.info(helloMessage(message = "hello", userName = userName).toString)
-            val helloReplyMessage = (jsonHandler ? helloMessage(message = message, userName = userName))
+            val helloReplyMessage = jsonHandler ? helloMessage(message = message, userName = userName)
             onSuccess(helloReplyMessage) {
               case s: String => complete(s)
               case _ => complete(StatusCodes.InternalServerError)
@@ -72,7 +72,7 @@ object ApiHelloRoutes extends ApiHelloDataObjects {
           post {
             implicit val timeout: Timeout = 5.seconds
             entity(as[String]) { jsonRequest: String =>
-              val parsedVal = (jsonHandler ? parse(jsonRequest).getOrElse(Json.Null)).mapTo[String]
+              val parsedVal = (jsonHandler ? parse(jsonRequest).getOrElse(0)).mapTo[String]
                parsedVal match {
                 case x: Future[String] => complete(x)
                 case _ => log.error("unable to process reply")
