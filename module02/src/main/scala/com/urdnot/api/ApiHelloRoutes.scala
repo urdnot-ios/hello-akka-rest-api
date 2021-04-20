@@ -31,7 +31,7 @@ object ApiHelloRoutes extends ApiHelloDataObjects {
             log.info(helloMessage(message = "hello", userName = userName).toString)
             val helloReplyMessage = jsonHandler ? helloMessage(message = message, userName = userName)
             onSuccess(helloReplyMessage) {
-              case s: String => complete(s)
+              case s: Json => complete(s.toString())
               case _ => complete(StatusCodes.InternalServerError)
             }
           }
