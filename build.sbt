@@ -7,12 +7,13 @@ val scalaMinorVersion = "5"
 ThisBuild / scalaVersion :=  scalaMajorVersion.concat("." + scalaMinorVersion)
 
 lazy val root = (project in file ("."))
-  .aggregate(module01, module02)
+  .aggregate(module01, module02Key, module02Student)
   .settings( name := "simple-akka-rest-api",
     sharedSettings
   )
 lazy val module01 = (project in file("module01")).settings(sharedSettings)
-lazy val module02 = (project in file("module02")).settings(sharedSettings)
+lazy val module02Key = (project in file("module02 - key")).settings(sharedSettings)
+lazy val module02Student = (project in file("module02 - Student")).settings(sharedSettings)
 lazy val module03 = (project in file("module03")).settings(sharedSettings)
 
 
@@ -24,7 +25,7 @@ lazy val sharedSettings = Seq(
   val scalaLoggingVersion = "3.9.2"
   val logbackVersion = "1.2.3"
   val scalaTestVersion = "3.2.5"
-  val circeVersion = "0.12.3"
+  val circeVersion = "0.13.0"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
@@ -38,7 +39,8 @@ lazy val sharedSettings = Seq(
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
-    "io.circe" %% "circe-parser" % circeVersion
+    "io.circe" %% "circe-parser" % circeVersion,
+    "io.circe" %% "circe-optics" % circeVersion
   )
 }
 )

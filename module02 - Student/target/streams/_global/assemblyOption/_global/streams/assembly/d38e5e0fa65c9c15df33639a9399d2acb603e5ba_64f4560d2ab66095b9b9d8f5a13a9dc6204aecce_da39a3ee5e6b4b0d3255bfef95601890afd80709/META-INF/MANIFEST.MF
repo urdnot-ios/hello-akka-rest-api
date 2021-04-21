@@ -1,0 +1,48 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: akka.actor.testkit
+Bundle-Description: Akka is a toolkit for building highly concurrent, 
+ distributed, and resilient message-driven applications for Java and S
+ cala.
+Bundle-DocURL: https://doc.akka.io/api/akka/2.6.13
+Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.html;descr
+ iption=Apache-2.0
+Bundle-ManifestVersion: 2
+Bundle-Name: akka-testkit
+Bundle-SymbolicName: com.typesafe.akka.testkit
+Bundle-Vendor: Lightbend Inc.
+Bundle-Version: 2.6.13
+Export-Package: akka.testkit;uses:="akka.actor,akka.dispatch,akka.disp
+ atch.sysmsg,akka.event,akka.serialization,akka.util,com.typesafe.conf
+ ig,scala,scala.collection,scala.collection.immutable,scala.collection
+ .mutable,scala.concurrent,scala.concurrent.duration,scala.reflect,sca
+ la.runtime,scala.util,scala.util.control,scala.util.matching";version
+ ="2.6.13",akka.testkit.javadsl;uses:="akka.actor,akka.testkit,scala.c
+ ollection.immutable,scala.concurrent.duration,scala.reflect,scala.run
+ time";version="2.6.13"
+Implementation-Title: akka-testkit
+Implementation-URL: https://akka.io/
+Implementation-Vendor-Id: com.typesafe.akka
+Implementation-Vendor: Lightbend Inc.
+Implementation-Version: 2.6.13
+Import-Package: akka.actor;version="[2.6,2.7)",akka.dispatch;version="
+ [2.6,2.7)",akka.dispatch.sysmsg;version="[2.6,2.7)",akka.event;versio
+ n="[2.6,2.7)",akka.japi;version="[2.6,2.7)",akka.pattern;version="[2.
+ 6,2.7)",akka.serialization;version="[2.6,2.7)",akka.testkit;version="
+ [2.6,2.7)",akka.util;version="[2.6,2.7)",akka.util.ccompat;version="[
+ 2.6,2.7)",com.typesafe.config;version="[1.4.0,1.5.0)",scala;version="
+ [2.13,2.14)",scala.collection;version="[2.13,2.14)",scala.collection.
+ convert;version="[2.13,2.14)",scala.collection.immutable;version="[2.
+ 13,2.14)",scala.collection.mutable;version="[2.13,2.14)",scala.concur
+ rent;version="[2.13,2.14)",scala.concurrent.duration;version="[2.13,2
+ .14)",scala.math;version="[2.13,2.14)",scala.reflect;version="[2.13,2
+ .14)",scala.runtime;version="[2.13,2.14)",scala.runtime.java8;version
+ ="[2.13,2.14)",scala.sys;version="[2.13,2.14)",scala.util;version="[2
+ .13,2.14)",scala.util.control;version="[2.13,2.14)",scala.util.matchi
+ ng;version="[2.13,2.14)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version>=1.8))
+ "
+Specification-Title: akka-testkit
+Specification-Vendor: Lightbend Inc.
+Specification-Version: 2.6.13
+Tool: Bnd-4.0.0.201805111645
+

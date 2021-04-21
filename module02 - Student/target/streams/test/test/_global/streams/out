@@ -1,0 +1,59 @@
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(com.urdnot.api.JsonSuite, org.scalatest.tools.Framework$$anon$1@274c56b6, false, [SuiteSelector])[0m
+[0m[[0m[0mdebug[0m] [0m[0mRunning TaskDef(com.urdnot.api.RouteSuite, org.scalatest.tools.Framework$$anon$1@274c56b6, false, [SuiteSelector])[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mRouteSuite:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mThe basic service[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m- should return hello username *** FAILED ***[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  "{[[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m    "message" : "hello",[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m    "name" : "jsewell"[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  ]}" did not equal "{["hello" : "jsewell"]}" (RouteSuite.scala:22)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  Analysis:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  "{[[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  "message" : "hello",[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  "name" : "jsewell"[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m]}" -> "{["hello" : "jsewell"]}"[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mThe jsonExtractor service[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should return a new JSON string for valid JSON[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mThe jsonExtractor service[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- should return an error for invalid JSON[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mThe weather service[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m- should return a weather measurement *** FAILED ***[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  Request was neither completed nor rejected within 1 second (RouteTest.scala:61)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mJsonSuite:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mA valid basic JSON parser[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m- must send back a valid JSON object *** FAILED ***[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  java.lang.AssertionError: assertion failed: timeout (3 seconds) during expectMsg while waiting for io.circe.Json$@119082ef[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at scala.Predef$.assert(Predef.scala:280)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKitBase.expectMsg_internal(TestKit.scala:461)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKitBase.expectMsg(TestKit.scala:438)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKitBase.expectMsg$(TestKit.scala:438)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKit.expectMsg(TestKit.scala:971)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at com.urdnot.api.JsonSuite.$anonfun$new$2(JsonSuite.scala:42)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.Transformer.apply(Transformer.scala:22)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  ...[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32mAn invalid basic JSON parser[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m- must send back a parsingfailure *** FAILED ***[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  java.lang.AssertionError: assertion failed: timeout (3 seconds) during expectMsg while waiting for io.circe.ParsingFailure$@50ab783[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at scala.Predef$.assert(Predef.scala:280)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKitBase.expectMsg_internal(TestKit.scala:461)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKitBase.expectMsg(TestKit.scala:438)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKitBase.expectMsg$(TestKit.scala:438)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at akka.testkit.TestKit.expectMsg(TestKit.scala:971)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at com.urdnot.api.JsonSuite.$anonfun$new$5(JsonSuite.scala:57)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  at org.scalatest.Transformer.apply(Transformer.scala:22)[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m  ...[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mRun completed in 7 seconds, 256 milliseconds.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mTotal number of tests run: 6[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mSuites: completed 2, aborted 0[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[36mTests: succeeded 2, failed 4, canceled 0, ignored 0, pending 0[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[31m*** 4 TESTS FAILED ***[0m[0m
+[0m[[0m[31merror[0m] [0m[0mFailed tests:[0m
+[0m[[0m[31merror[0m] [0m[0m	com.urdnot.api.RouteSuite[0m
+[0m[[0m[31merror[0m] [0m[0m	com.urdnot.api.JsonSuite[0m
+[0m[[0m[31merror[0m] [0m[0m(module02 / Test / [31mtest[0m) sbt.TestsFailedException: Tests unsuccessful[0m
