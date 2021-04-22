@@ -10,3 +10,8 @@
 keystore.jks
 .bsp.bsp/
 target/*
+/module02/
+/module02 - Key/target/
+/module02 - Key/02-JSON.iml
+/module02 - Student/target/
+/module03/target/
