@@ -72,6 +72,7 @@ class JsonHandler() extends Actor {
     import io.circe.optics.JsonPath._
     genericParse match {
       case Right(x) => x match {
+          // can you right/left this instead of try/catch?
         case x: Json => try {
           val retVal = WeatherMeasurement(
             time = convertTimestamp(root.time.string.getOption(x)),
