@@ -1,9 +1,0 @@
-[0m[[0m[0mdebug[0m] [0m[0mAcquiring lock on file /Users/jsewell/scala/simple-akka-rest-api/project/target/.sbt-compilation-infos/module02Student-compile/.sbt-idea-lock ...[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/jsewell/scala/simple-akka-rest-api/module02 - Student/src/main/scala/com/urdnot/api/ApiHelloRoutes.scala:10:8: value HelloMessage is not a member of object com.urdnot.api.JsonHandler[0m
-[0m[[0m[31merror[0m] [0m[0mimport com.urdnot.api.JsonHandler.{HelloMessage, SimpleJsonReply, SimpleJsonRequest, WeatherMeasurement}[0m
-[0m[[0m[31merror[0m] [0m[0m       ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/jsewell/scala/simple-akka-rest-api/module02 - Student/src/main/scala/com/urdnot/api/JsonHandler.scala:6:8: value HelloMessage is not a member of object com.urdnot.api.JsonHandler[0m
-[0m[[0m[31merror[0m] [0m[0mimport com.urdnot.api.JsonHandler.{HelloMessage, HelloReplyMessage, SimpleJsonReply, SimpleJsonRequest, WeatherMeasurement}[0m
-[0m[[0m[31merror[0m] [0m[0m       ^[0m
-[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m
-[0m[[0m[0mdebug[0m] [0m[0mReleasing lock on file /Users/jsewell/scala/simple-akka-rest-api/project/target/.sbt-compilation-infos/module02Student-compile/.sbt-idea-lock.[0m

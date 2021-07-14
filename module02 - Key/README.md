@@ -10,6 +10,15 @@ Verify two thing about the inbound data:
  - Can it be parsed into valid JSON
  - Can it be parsed into the target datatype
 
+**********PROVIDE OUTPUT EXAMPLES***************
+Explain `DeriveDecoder` and the implicit val
+Explain why `mapTo` in the return
+Explain Right/Left in parsing the cursor value
+
+Classic actor vs New
+Pointers on timestamp stuff
+
+
 If it passes, then handle the message by summing the values of the list and returning the data as a new case class which you convert to a JSON message. 
 
 However: only return the summed int, not the full message.
