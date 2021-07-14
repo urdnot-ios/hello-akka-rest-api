@@ -15,14 +15,7 @@ object Consumers {
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = SystemMaterializer(system).materializer
   implicit val scheduler: akka.actor.Scheduler = system.scheduler
-  val log: Logger = Logger("SdlWeatherSensor")
-
-//  val config = system.settings.config.getConfig("our-kafka-consumer")
-//  val consumerSettings = ConsumerSettings(config, new StringDeserializer, new ByteArrayDeserializer)
-//  val committerSettings = CommitterSettings.create(config)
-
-  //  def producerDefaults: ProducerSettings[String, String] = producerDefaults(StringSerializer, StringSerializer)
-
+  val log: Logger = Logger("KafkaConsumer")
 
   def consume(topic: String, consumerSettings: ConsumerSettings[String, String]): Source[Int, Consumer.Control] = {
    Consumer

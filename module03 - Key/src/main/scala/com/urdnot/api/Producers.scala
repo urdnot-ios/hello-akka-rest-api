@@ -18,9 +18,6 @@ object Producers {
   implicit val mat: Materializer = SystemMaterializer(system).materializer
   implicit val scheduler: akka.actor.Scheduler = system.scheduler
 
-//  def producerDefaults: ProducerSettings[String, String] = producerDefaults(StringSerializer, StringSerializer)
-
-
   def produce(topic: String, producerSettings: ProducerSettings[String, String]): Future[Done] = {
     Source(1 to 100)
       .map(value => new ProducerRecord[String, String](topic, value.toString))

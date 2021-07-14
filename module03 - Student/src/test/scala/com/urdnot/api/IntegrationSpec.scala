@@ -17,9 +17,9 @@ import scala.language.postfixOps
 
 class IntegrationSpec extends SpecBase with TestcontainersKafkaLike with Inside {
 
-
   implicit val patience: PatienceConfig = PatienceConfig(10.seconds, 500.millis)
   setUp()
+
 
   val producerSettings: ProducerSettings[String, String] = ProducerSettings(system, new StringSerializer, new StringSerializer)
     .withBootstrapServers(bootstrapServers)
