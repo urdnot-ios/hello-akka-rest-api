@@ -1,35 +1,34 @@
 package com.urdnot.api
 
 import akka.actor.ActorRef
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives.{complete, concat, get, onSuccess, parameter, path, _}
+import akka.http.scaladsl.server.Directives.{complete, concat, get, path, _}
 import akka.http.scaladsl.server.Route
-import akka.pattern.ask
-import akka.util.Timeout
+import akka.stream.scaladsl.FileIO
 import com.typesafe.scalalogging.Logger
-import com.urdnot.api.ApiHelloActor.{HelloMessage, HelloReplyMessage}
-import io.circe.Decoder
-import io.circe.generic.semiauto.deriveDecoder
-import io.circe.parser._
+import com.urdnot.api.ApiHelloApp.system
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
+import java.io.File
+import java.nio.file.StandardOpenOption.{APPEND, CREATE, WRITE}
+import scala.util.{Failure, Success}
 
 object ApiHelloRoutes {
 
+  final case class User(userId: String, message: String)
   private val log: Logger = Logger("routes")
   def setupRoutes(helloActor: ActorRef): Route = {
     // curl 'http://Jeffreys-MBP-16.urdnot.com:8081/hello?user=jsewell&message=hello'
+    // curl 'http://Jeffreys-MBP-16.urdnot.com:8081/hello?user=jsewell&message=goodbye'
+    // curl 'http://Jeffreys-MBP-16.urdnot.com:8081/hello?user=jsewell&message=GARBAGE'
     concat(
       path("hello") {
         get {
-          implicit val timeout: Timeout = 5.seconds
-          parameter("user") { userName: String =>
-            val helloReplyMessage: Future[HelloReplyMessage] = (helloActor ? HelloMessage(userName = userName, message = "")).mapTo[HelloReplyMessage]
-            onSuccess(helloReplyMessage) {
-              case helloReplyMessage: HelloReplyMessage => complete(helloReplyMessage.message)
-              case _ => complete(StatusCodes.InternalServerError)
+          parameters("user".as[String], "message".as[String]).as(User) { user: User =>
+            val returnMessage: String = user.message match {
+              case "hello" => s"Hello to you too, ${user.userId}"
+              case "goodbye" => s"Goodbye, ${user.userId}, thanks for checking in!"
+              case _ => "I'm sorry, I don't understand you"
             }
+              complete(returnMessage)
           }
         }
       },
@@ -37,16 +36,16 @@ object ApiHelloRoutes {
       path("helloJson") {
         concat(
           post {
-            implicit val timeout: Timeout = 5.seconds
-            entity(as[String]) { jsonRequest: String =>
-              implicit val fooDecoder: Decoder[HelloMessage] = deriveDecoder[HelloMessage]
-              decode[HelloMessage](jsonRequest) match {
-                case Left(x) => log.error("bad request: " + x.getMessage)
-                  complete(StatusCodes.BadRequest)
-                case Right(parsedMessage) => onSuccess((helloActor ? parsedMessage).mapTo[HelloReplyMessage]) {
-                  case helloReplyMessage: HelloReplyMessage => complete(helloReplyMessage.message)
-                  case _ => log.error("unable to process reply")
-                    complete(StatusCodes.InternalServerError)
+            withoutSizeLimit {
+              extractDataBytes { bytes =>
+                val finishedWriting = bytes
+                  .runWith(
+                    FileIO
+                      .toPath(f = new File("/tmp/example.out").toPath, options = Set(WRITE, APPEND, CREATE))
+                  )
+                onComplete(finishedWriting) {
+                  case Success(x) => complete("Finished writing data: " + x.count + " bytes written to file")
+                  case Failure(exception) => complete("Something went wrong: " + exception.getMessage)
                 }
               }
             }

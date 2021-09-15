@@ -21,14 +21,14 @@ lazy val module03Key = (project in file("module03 - Key")).settings(sharedSettin
 
 lazy val sharedSettings = Seq(
   libraryDependencies ++= {
-    val AkkaVersion = "2.6.14"
-    val AkkaHttpVersion = "10.2.4"
-    val AkkaStreamKafkaVersion = "2.1.0"
-    val circeVersion = "0.13.0"
-    val JacksonVersion = "2.11.4"
-    val LogbackClassicVersion = "1.2.3"
-    val scalaLoggingVersion = "3.9.2"
-    val ScalaTestVersion = "3.2.5"
+    val AkkaVersion = "2.6.16"
+    val AkkaHttpVersion = "10.2.6"
+    val AkkaStreamKafkaVersion = "2.1.1"
+    val circeVersion = "0.14.1"
+    val JacksonVersion = "2.12.4"
+    val LogbackClassicVersion = "1.2.5"
+    val scalaLoggingVersion = "3.9.4"
+    val ScalaTestVersion = "3.2.9"
     val TestcontainersVersion = "1.15.3"
 
     Seq(
