@@ -1,6 +1,6 @@
 
 ThisBuild / name := "simple-akka-rest-api"
-ThisBuild / version := "0.6.1"
+ThisBuild / version := "0.6.5"
 ThisBuild / organization := "com.urdnot.api"
 val scalaMajorVersion = "2.13"
 val scalaMinorVersion = "5"
