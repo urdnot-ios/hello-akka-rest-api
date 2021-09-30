@@ -25,11 +25,11 @@ lazy val sharedSettings = Seq(
     val AkkaHttpVersion = "10.2.6"
     val AkkaStreamKafkaVersion = "2.1.1"
     val circeVersion = "0.14.1"
-    val JacksonVersion = "2.12.4"
-    val LogbackClassicVersion = "1.2.5"
+    val JacksonVersion = "2.12.5"
+    val LogbackClassicVersion = "1.2.6"
     val scalaLoggingVersion = "3.9.4"
     val ScalaTestVersion = "3.2.9"
-    val TestcontainersVersion = "1.15.3"
+    val TestcontainersVersion = "1.16.0"
 
     Seq(
       "ch.qos.logback" % "logback-classic" % LogbackClassicVersion,
@@ -52,9 +52,7 @@ lazy val sharedSettings = Seq(
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-parser" % circeVersion,
       "io.circe" %% "circe-optics" % circeVersion,
-      "org.testcontainers" % "kafka" % TestcontainersVersion % Test,
-
-
+      "org.testcontainers" % "kafka" % TestcontainersVersion % Test
     )
   }
 )
