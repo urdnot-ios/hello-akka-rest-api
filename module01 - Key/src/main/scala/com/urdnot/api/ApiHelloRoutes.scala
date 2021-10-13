@@ -1,57 +1,66 @@
 package com.urdnot.api
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.{complete, concat, get, path, _}
 import akka.http.scaladsl.server.Route
-import akka.stream.Attributes
-import akka.stream.scaladsl.{FileIO, Flow}
+import akka.http.scaladsl.server.directives.Credentials
+import akka.stream.IOResult
+import akka.stream.scaladsl.{FileIO, Flow, Sink, Source}
 import akka.util.ByteString
 import com.typesafe.scalalogging.Logger
-import com.urdnot.api.ApiHelloApp.system
 
-import java.io.File
-import java.nio.file.StandardOpenOption.{APPEND, CREATE, WRITE}
+import java.nio.file.{Files, Path}
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
-object ApiHelloRoutes {
+trait ApiHelloRoutes {
 
   final case class User(userId: String, message: String)
+  private val file: Path = Files.createTempFile("test", ".tmp")
+
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   private val log: Logger = Logger("routes")
   val appendFlow: Flow[ByteString, ByteString, _] = Flow[ByteString].map { x: ByteString =>
     x.concat(ByteString("more data"))
+  }
+  val fileSink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(f = file)
+
+  def myUserPassAuthenticator(credentials: Credentials): Option[String] = {
+    credentials match {
+      case p @ Credentials.Provided(id) if p.verify("somepass") => Some(id)
+      case _ => log.error(credentials.toString); Some("unauthorized")
+    }
   }
 
   def setupRoutes(): Route = {
     concat(
       path("hello") {
         get {
-          parameters("user".as[String], "message".as[String]).as(User) { user: User =>
-            val returnMessage: String = user.message match {
-              case "hello" => s"Hello to you too, ${user.userId}"
-              case "goodbye" => s"Goodbye, ${user.userId}, thanks for checking in!"
-              case _ => "I'm sorry, I don't understand you"
+          withSizeLimit(1024L) {
+            parameters("user".as[String], "message".as[String]).as(User) { user: User =>
+              val returnMessage: String = user.message match {
+                case "hello" => s"Hello to you too, ${user.userId}"
+                case "goodbye" => s"Goodbye, ${user.userId}, thanks for checking in!"
+                case _ => "I'm sorry, I don't understand you"
+              }
+              complete(returnMessage)
             }
-            complete(returnMessage)
           }
         }
       },
       // curl -d '{"userName":"jsewell","message":"hello"}' -H "Content-Type: application/json" -X POST http://Jeffreys-MBP-16.urdnot.com:8081/helloJson
       path("helloJson") {
         post {
-          withoutSizeLimit {
-            extractDataBytes { bytes =>
-              val finishedWriting =
+          withSizeLimit(40L) {
+            extractDataBytes { bytes: Source[ByteString, Any] =>
+              log.info(file.toString)
+              val finishedWriting: Future[IOResult] =
                 bytes
-                  .log("bytes", _.utf8String)
-                  .addAttributes(Attributes
-                    .logLevels(
-                      onElement = Attributes.LogLevels.Info,
-                      onFinish = Attributes.LogLevels.Info,
-                      onFailure = Attributes.LogLevels.Error)
-                  ).via(appendFlow)
-                  .runWith(FileIO.toPath(f = new File("/tmp/example.out").toPath, options = Set(WRITE, APPEND, CREATE))
-                  )
+                  .via(appendFlow)
+                  .runWith(fileSink)
               onComplete(finishedWriting) {
                 case Success(x) => complete("Finished writing data: " + x.count + " bytes written to file")
                 case Failure(e) =>
@@ -62,7 +71,14 @@ object ApiHelloRoutes {
             }
           }
         }
-
+      },
+      path("secureRoute") {
+        post {
+          authenticateBasic(realm = "secure site", myUserPassAuthenticator) {
+            case x: String if x == "user" => complete(StatusCodes.OK)
+            case _ => complete(StatusCodes.Unauthorized)
+          }
+        }
       }
     )
   }

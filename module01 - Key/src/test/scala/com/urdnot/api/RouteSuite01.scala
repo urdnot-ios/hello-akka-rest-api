@@ -1,17 +1,21 @@
 package com.urdnot.api
 
 
+import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.util.ByteString
-import com.urdnot.api.ApiHelloRoutes.setupRoutes
+import com.urdnot.api.ApiHelloApp.setupRoutes
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class ApiSuite extends AnyWordSpec with Matchers with ScalatestRouteTest {
+import scala.concurrent.ExecutionContextExecutor
 
-  val routesUnderTest = setupRoutes
+class RouteSuite01 extends AnyWordSpec with Matchers with ScalatestRouteTest {
+
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
+  val routesUnderTest: Route = setupRoutes()
   "The hello route" should {
     "return a greeting for hello GET requests to the hello path" in {
       Get("/hello?user=jsewell&message=hello") ~> Route.seal(routesUnderTest) ~> check {
@@ -38,9 +42,32 @@ class ApiSuite extends AnyWordSpec with Matchers with ScalatestRouteTest {
   "The helloJson route" should {
     "Return a message and log to a file" in {
       Post("/helloJson") .withEntity(ContentTypes.`application/json`, ByteString("""{"userName":"jsewell","message":"hello"}""")) ~> Route.seal(routesUnderTest) ~> check {
+        status shouldBe StatusCodes.OK
+        responseAs[String] shouldBe "Finished writing data: 49 bytes written to file"
+      }
+    }
+  }
+  "The helloJson route XL message" should {
+    "Return an error if the message is too big" in {
+      Post("/helloJson") .withEntity(ContentTypes.`application/json`, ByteString("""{"userName":"jsewell","message":"hello there"}""")) ~> Route.seal(routesUnderTest) ~> check {
         status shouldBe StatusCodes.InternalServerError
       }
     }
   }
-//  addCredentials(OAuth2BearerToken(VALID_TOKEN))
+  "The authentication route" should {
+    "accept an authenticated user " in {
+      Post("/secureRoute")
+      .addCredentials(BasicHttpCredentials("user", "somepass"))
+        .withEntity(ContentTypes.`application/json`, ByteString("""{"userName":"jsewell","message":"hello there"}""")) ~> Route.seal(routesUnderTest) ~> check {
+        status shouldBe StatusCodes.OK
+      }
+    }
+    "reject an unauthenticated user " in {
+      Post("/secureRoute")
+        .addCredentials(BasicHttpCredentials("user", "badpass"))
+        .withEntity(ContentTypes.`application/json`, ByteString("""{"userName":"jsewell","message":"hello there"}""")) ~> Route.seal(routesUnderTest) ~> check {
+        status shouldBe StatusCodes.Unauthorized
+      }
+    }
+  }
 }

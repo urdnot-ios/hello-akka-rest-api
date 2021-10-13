@@ -1,6 +1,6 @@
 package com.urdnot.api
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
@@ -18,29 +18,24 @@ object ApiHelloApp extends App {
   implicit val system: ActorSystem = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  // setup the actor that does the listening and spawns the children
-  val helloApi: ActorRef = system.actorOf(Props[ApiHelloActor], "helloApi")
-
   // setup the routes
-  val route = ApiHelloRoutes.setupRoutes(helloApi)
+  val route = ApiHelloRoutes.setupRoutes()
 
   // bind the interface
-  val bindingFutureHttps = Http()
+  List(Http()
     .newServerAt(interface, httpPort)
     .bind(route)
-
-  val bindingFutures = List(bindingFutureHttps)
-  bindingFutures.map { bindingFuture =>
-    try {
-      bindingFuture.map { serverBinding =>
-        log.info(s"RestApi bound to ${serverBinding.localAddress.getAddress.getHostAddress}:${serverBinding.localAddress.getPort}")
+  )
+    .map { bindingFuture =>
+      try {
+        bindingFuture.map { serverBinding =>
+          log.info(s"RestApi bound to ${serverBinding.localAddress.getAddress.getHostAddress}:${serverBinding.localAddress.getPort}")
+        }
+      }
+      catch {
+        case ex: Exception ⇒
+          log.error(ex + s" Failed to bind!")
+          system.terminate()
       }
     }
-    catch
-    {
-      case ex: Exception ⇒
-        log.error(ex + s" Failed to bind!")
-        system.terminate()
-    }
-  }
 }
