@@ -28,7 +28,7 @@ trait ApiHelloRoutes {
   }
   val fileSink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(f = file)
 
-  def myUserPassAuthenticator(credentials: Credentials): Option[String] = {
+  def authenticator(credentials: Credentials): Option[String] = {
     credentials match {
       case p @ Credentials.Provided(id) if p.verify("somepass") => Some(id)
       case _ => log.error(credentials.toString); Some("unauthorized")
@@ -51,7 +51,6 @@ trait ApiHelloRoutes {
           }
         }
       },
-      // curl -d '{"userName":"jsewell","message":"hello"}' -H "Content-Type: application/json" -X POST http://Jeffreys-MBP-16.urdnot.com:8081/helloJson
       path("helloJson") {
         post {
           withSizeLimit(40L) {
@@ -74,7 +73,7 @@ trait ApiHelloRoutes {
       },
       path("secureRoute") {
         post {
-          authenticateBasic(realm = "secure site", myUserPassAuthenticator) {
+          authenticateBasic(realm = "", authenticator = authenticator) {
             case x: String if x == "user" => complete(StatusCodes.OK)
             case _ => complete(StatusCodes.Unauthorized)
           }

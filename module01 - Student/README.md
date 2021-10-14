@@ -242,7 +242,201 @@ Create a `post` method handler route called `helloJson` that uses Akka Streams t
 #Security and Server Settings
 In addition to the size constraint, Akka Http is able to handle authentication headers, TLS, and connection throttling to prevent overloading the system.
 ##Authentication
+There are two main types of authentication supported:
+- Basic
+- OAUTH
+We will only cover Basic in this module. 
 
+Basic authentication is a non-encrypted value sent in the header so it is critical to have TLS (aka HTTPS) setup first. The pattern in curl is:
+`-H 'Authentication: Basic <UTF-8 String with optional user and required password>'`
+Akka HTTP has helper methods to extract and validate the credentials. A method that requires authentication must have a helper function to check the validity of the password. The route handler looks like this:
+```
+authenticateBasic(realm = "any string", authenticator<implied password is sent here as _> {
+            case x: String if x == "<the username from the authentication header>" => <do your work here> complete(StatusCodes.OK)
+            case _ => complete(StatusCodes.Unauthorized)
+```
+Two values must be supplied: a realm (can be any string if you aren't using it) and an `Authenticator` type. The `Authenticator` is best setup as an external function that takes in `Credentials` and returns an `Option[String]`. For example:
+```  def authenticator(credentials: Credentials): Option[String] = {
+    credentials match {
+      case p @ Credentials.Provided(id) if p.verify("somepass") => Some(id)
+      case _ => log.error(credentials.toString); Some("unauthorized")
+    }
+  }
+```
+More elaborate setups can use the authenticator function to query a database or LDAP for verification.
 ##HTTPS/TLS
+Passwords are at risk without HTTPS! This is one of the more frustrating and complex items for any REST api and it is often skipped during development. I'll go through the steps here since the certificates must be added to cURL in order for tests to work.
+
+First, you must have the Java tool `keytool` installed. This will run the encryption and key generation functions. By default, it comes with your Java installation. It is also helpful to have a random password generator, although you may also use any string you want.
+
+The three main steps are:
+1. Generate your own Certificate Authority
+2. Trust your own CA
+3. Generate and sign your server certificate using that CA
+4. Load the self-signed certificate and create an HTTPS listener
+
+I'll mostly follow the Lightbend [walkthrough](https://lightbend.github.io/ssl-config/CertificateGeneration.html) for this.
+
+First, generate your password however you want to do that. 
+
+Second, generate your self-signed root CA and export the certificate for the next steps. Remember to do this in a directory where you can get the output files. I recommend using `src-->main-->resources`. In this example, your password is taken from the environment variables. You also have the option to enter it manually or read it from a file. Use the `--help` option to see the syntax for those:
+```
+keytool -genkeypair -v \
+  -alias exampleca \
+  -dname "CN=exampleCA, OU=Technology Org, O=Urdnot Co., L=Seattle, ST=Washington, C=US" \
+  -keystore exampleca.jks \
+  -keypass:env PW \
+  -storepass:env PW \
+  -keyalg RSA \
+  -keysize 4096 \
+  -ext KeyUsage:critical="keyCertSign" \
+  -ext BasicConstraints:critical="ca:true" \
+  -validity 9999
+```
+Now, export the exampleCA public certificate as exampleca.crt and put it into your Java keystore (again, using the environment variables for your password in this example).
+```
+keytool -export -v \
+  -alias exampleca \
+  -file exampleca.crt \
+  -keypass:env PW \
+  -storepass:env PW \
+  -keystore exampleca.jks \
+  -rfc
+  ```
+Step three is more involved, you must generate a certificate, a certificate signing request, sign it, then import the signed certificate into your keystore.
+
+First, create a server certificate, tied to example.com
+```
+keytool -genkeypair -v \
+  -alias example.com \
+  -dname "CN=exampleCA, OU=Technology Org, O=Urdnot Co., L=Seattle, ST=Washington, C=US" \
+  -keystore example.com.jks \
+  -keypass:env PW \
+  -storepass:env PW \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 385
+```
+Next, create the certificate signing request
+```
+keytool -certreq -v \
+  -alias example.com \
+  -keypass:env PW \
+  -storepass:env PW \
+  -keystore example.com.jks \
+  -file example.com.csr
+```
+Then, sign the new certificate with your previously generated root CA
+```
+keytool -gencert -v \
+  -alias exampleca \
+  -keypass:env PW \
+  -storepass:env PW \
+  -keystore exampleca.jks \
+  -infile example.com.csr \
+  -outfile example.com.crt \
+  -ext KeyUsage:critical="digitalSignature,keyEncipherment" \
+  -ext EKU="serverAuth" \
+  -ext SAN="DNS:example.com" \
+  -rfc
+```
+Then, add your root CA as a trusted root
+```
+keytool -import -v \
+  -alias exampleca \
+  -file exampleca.crt \
+  -keystore example.com.jks \
+  -storetype JKS \
+  -storepass:env PW << EOF
+yes
+EOF
+```
+Finally, import your new certificate into your truststore.
+``` 
+keytool -import -v \
+  -alias example.com \
+  -file example.com.crt \
+  -keystore example.com.jks \
+  -storetype JKS \
+  -storepass:env PW
+```
+Check that your certificate is added
+```
+keytool -list -v \
+  -keystore example.com.jks \
+  -storepass:env PW
+ ```
+at this point, you should have new files in your resources directory:
+1. example.com.crt 
+2. example.com.csr
+3. example.com.jks
+4. exampleca.crt
+5. exampleca.jks
+6. password
+
+If you need to re-run any steps, the file `password` has the password you will need.
+
+Once this is setup, it's time to listen for TLS/HTTPS connections!
+### Setup TLS in the server code
+Setting up TLS is a multi-step process. After you have the keystore with the self-signed certificate you will need to add a new port to your application.conf file:
+`akka.server.https.port`
+Then load it as an int: `private val httpsPort: Int = config.getInt("akka.server.https.port")`
+
+Now, the reason the resources directory is good for holding these files is it is easy to access for the different setup steps. First, get the password saved in the password file. I won't pretend this isn't a completely stupid number of steps you have to take:
+`val password = getClass.getClassLoader.getResourceAsStream("password").readAllBytes().map(_.toChar).mkString.trim.toCharArray`
+And this is the post Java 9 version. Earlier versions were worse!
+
+Remember the "trim" part, that is useful if you are reading from a file or an env variable.
+
+Next, initiate the truststore's keystore and the actual keystore (I know, I know, it's the result of too many committees over too many years):
+```
+val ks: KeyStore = KeyStore.getInstance("PKCS12")
+val keystore: InputStream = getClass.getClassLoader.getResourceAsStream("example.com.jks")
+```
+It's best to check that you have the first steps working before moving on:
+```  // require it before loading
+  require(keystore != null, "Keystore required!")
+  ks.load(keystore, password)
+```
+Now you have your local certificate loaded, time to inistantiate the keystore:
+```
+val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+keyManagerFactory.init(ks, password)
+```
+
+Next, the truststore:
+```
+val tmf: TrustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+tmf.init(ks)
+```
+FINALLY you can instantiate the TLS for your code:
+```
+val sslContext: SSLContext = SSLContext.getInstance("TLS")
+sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom)
+val https: HttpsConnectionContext = ConnectionContext.httpsServer(sslContext)
+```
+
+Now, did you wonder why we built HTTP as a list? This is why: you can have both HTTP and HTTPS listen at the same time!
+The new HTTP + HTTPS setup will be:
+```
+List(
+    Http().newServerAt(interface, httpsPort).enableHttps(https).bind(route),
+    Http().newServerAt(interface, httpPort).bind(route)
+  ).map { bindingFuture =>
+      try {
+        bindingFuture.map { serverBinding =>
+          log.info(s"RestApi bound to ${serverBinding.localAddress.getAddress.getHostAddress}:${serverBinding.localAddress.getPort}")
+        }
+      }
+      catch {
+        case ex: Exception ⇒
+          log.error(ex + s" Failed to bind!")
+          system.terminate()
+      }
+    }
+```
+And there you have it! TLS enabled, security achieved (except the NSA, they can read anything).
+
 ##Connection Throttling
+The final concept for the REST API is for a combination of security and resource allocation. It is often needed to provide backpressure and throttline on the connections. 
 #Assignment 3: Security and Request Throttling
