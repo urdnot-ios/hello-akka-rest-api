@@ -437,6 +437,8 @@ List(
 ```
 And there you have it! TLS enabled, security achieved (except the NSA, they can read anything).
 
-##Connection Throttling
-The final concept for the REST API is for a combination of security and resource allocation. It is often needed to provide backpressure and throttline on the connections. 
+##Connection Handling
+The final concept in the REST API module are the set of configurations that are notable for the server. The [akka-http configuration site](https://doc.akka.io/docs/akka-http/current/configuration.html) has the full documentation. Here I will discuss a few that I have found useful.
+
+1. 
 #Assignment 3: Security and Request Throttling
