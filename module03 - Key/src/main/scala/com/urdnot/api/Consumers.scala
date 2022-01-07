@@ -10,7 +10,6 @@ import com.typesafe.scalalogging.Logger
 import scala.concurrent.{ExecutionContext, Future}
 
 object Consumers {
-
   implicit val system: ActorSystem = ActorSystem.create("kafka_producer")
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = SystemMaterializer(system).materializer

@@ -15,15 +15,19 @@ Ignoring, for now, the processing of the data, the simple path is:
 To setup these stages you will need to have `"com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,` in your build.sbt.
 
 The server side listener is setup in 4 steps:
-1. Take a TCP socket on the host operating system and listen for connections
-2. Accept the connection
-3. Parse the route of the connection and pass the HTTP entity to that route for processing
-4. When the route is finished processing, it calls `complete()` and inside provides the correct reply message
+1. TODO: WHAT IS TCP/IP and SOCKETS
+2. TODO: EXPLAIN BODY AND HEADER
+3. Take a TCP socket on the host operating system and listen for connections
+4. Accept the connection
+5. Parse the route of the connection and pass the HTTP entity to that route for processing
+6. When the route is finished processing, it calls `complete()` and inside provides the correct reply message
 
 So let's look at each step. 
 
 ##Preparation
-First, make sure you have a `module01-->src-->resources` folder. Inside that folder, create two files:
+explain applicaiton.conf and HOCON and logback.xml
+
+First, make sure you create a `module01-->src-->main-->resources` folder. Inside that folder, create two files:
 `application.conf` and `logback.xml`
 
 The first file will hold all of your code's setup variables. The format is outlined here. All of the Akka setup variables are stored in an "akka" section:
@@ -44,11 +48,11 @@ The first file will hold all of your code's setup variables. The format is outli
 }
 ```
 Notice the `loglevel` and `server` settings. For now, debug is appropriate but will be too much information later. The host IP and port are set next. By using interface `0.0.0.0` you are able to access whatever IP address is available. If there is more than one it will listen on all of them. Finally, set up the ports for both http and https. This can be any free port.
-
+ELABORATE A BIT MORE
 The syntax `${?HTTP_PORT}` is used to obtain the variable data from either an environment variable or a variable set inside the file. This allows for local testing but then is transparent when the code is deployed because the file variables will be overwritten by the production environment variables. 
 
 With `build.sbt`, `application.conf`, and `logback.xml` setup, it's time to write some code!
-
+ELABORATE ON build.sbt
 The first two steps in setting up an Akka HTTP REST api are to build the routes and then set up the listener.
 
 With this information, you can build a URL that will listen for connections. For example, it might look like this:
@@ -83,7 +87,7 @@ We will discuss `POST` and `GET` in this module.
 URI's are the address of the request. The specificaiton for them is:
 `scheme://host:port/path?query`
 For our uses, the "scheme" will be either `HTTP` or `HTTPS` but there are many others.
-
+EXPLAIN MORE ABOUT URI, like "flie" and "JDBC"
 The `host:port` are the service's IP address and port number. For our exercises they will be `localhost` and `8081`
 
 The `path` is called a `route` on the server side code. The server must have routes setup so that messages can be delivered correctly. The different types of routes accept data in different, but overlapping, ways. 
