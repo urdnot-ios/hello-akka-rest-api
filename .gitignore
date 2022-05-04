@@ -10,6 +10,8 @@
 keystore.jks
 .bsp.bsp/
 target/*
+/module00 - Key/target/
+/module00 - Student/target/
 /module01 - Key/src/main/resources/example.com.crt
 /module01 - Key/src/main/resources/example.com.csr
 /module01 - Key/src/main/resources/example.com.jks
@@ -17,7 +19,7 @@ target/*
 /module01 - Key/src/main/resources/exampleca.jks
 /module01 - Key/src/main/resources/password
 /module01 - Student/target/
-/module02 - Key/target/
+/module01 - Key/target/
 /module02 - Key/02-JSON.iml
 /module02 - Key/src/main/resources/example.com.crt
 /module02 - Key/src/main/resources/example.com.csr
@@ -26,3 +28,7 @@ target/*
 /module02 - Key/src/main/resources/exampleca.jks
 /module02 - Key/src/main/resources/password
 /module02 - Student/target/
+/module02 - Key/target/
+/module03 - Student/target/
+/module03 - Key/target/
+
