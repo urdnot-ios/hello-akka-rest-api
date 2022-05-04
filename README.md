@@ -1,7 +1,12 @@
 Ongoing project to teach/learn about streaming with Scala using Akka and Circe.
 
 Modules are
-1. Basic setup with:
+0. Networking Overview
+   1. Explanation of how computers network
+   2. IP
+   3. TCP and UDP
+   4. Ports
+1. Application layer setup with:
     - SBT
     - ScalaTest
     - AkkaHTTP
@@ -27,16 +32,16 @@ Modules are
       - Source from File, HDFS, S3
       - Source from JDBC
       - Source from NoSQL
-      - Kinesis - AWS Kafka
-      - Firebase - Google Kafka
+      - Kinesis - AWS Kafka ?
+      - Firebase - Google Kafka ?
       - WebSocket Source
    - Sinks
       - Sink to file
       - Sink to S3
       - Sink to JDBC
       - Sink to NoSQL
-      - Write to Kinesis
-      - Write to Firebase
+      - Write to Kinesis ?
+      - Write to Firebase ?
       - Write to WebSockets
 5. Setup Flink
    - Flink Real Time Data Queries
